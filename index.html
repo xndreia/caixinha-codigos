@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Caixinha de códigos</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 30px;
+      max-width: 800px;
+      margin: auto;
+    }
+
+    h1 {
+      color: #38bdf8;
+      text-align: center;
+    }
+
+    label {
+      display: block;
+      margin-top: 20px;
+      font-weight: bold;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 6px;
+      border: none;
+      background: #1e293b;
+      color: white;
+      font-size: 14px;
+    }
+
+    button {
+      margin-top: 15px;
+      padding: 10px 15px;
+      font-size: 16px;
+      border: none;
+      background-color: #38bdf8;
+      color: #0f172a;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .snippet {
+      background: #1e293b;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 20px;
+      position: relative;
+    }
+
+    .snippet pre {
+      white-space: pre-wrap;
+      background: #0f172a;
+      padding: 10px;
+      border-radius: 6px;
+      margin-top: 10px;
+      font-family: monospace;
+    }
+
+    .snippet-actions {
+      margin-top: 10px;
+      display: flex;
+      gap: 10px;
+    }
+
+    .snippet-actions button {
+      background: #475569;
+      color: white;
+    }
+
+    .snippet-actions button:hover {
+      background: #64748b;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🧩 Caixinha de códigos</h1>
+
+  <label for="nome">Nome do Snippet:</label>
+  <input type="text" id="nome" placeholder="Ex: Função de...">
+
+  <label for="categoria">Categoria:</label>
+  <select id="categoria">
+    <option>C#</option>
+    <option>HTML</option>
+    <option>CSS</option>
+    <option>JavaScript</option>
+    <option>SQL</option>
+  </select>
+
+  <label for="codigo">Código:</label>
+  <textarea id="codigo" rows="6" placeholder="Cole ou escreva o código aqui..."></textarea>
+
+  <button onclick="salvarSnippet()">💾 Salvar Código</button>
+
+  <div id="lista-snippets"></div>
+
+  <script>
+    const nomeInput = document.getElementById("nome");
+    const categoriaInput = document.getElementById("categoria");
+    const codigoInput = document.getElementById("codigo");
+    const lista = document.getElementById("lista-snippets");
+
+    let snippets = JSON.parse(localStorage.getItem("snippets")) || [];
+
+    function salvarSnippet() {
+      const nome = nomeInput.value.trim();
+      const categoria = categoriaInput.value;
+      const codigo = codigoInput.value.trim();
+
+      if (!nome || !codigo) {
+        alert("Por favor, preencha o nome e o código.");
+        return;
+      }
+
+      const novoSnippet = { nome, categoria, codigo };
+      snippets.push(novoSnippet);
+      localStorage.setItem("snippets", JSON.stringify(snippets));
+
+      nomeInput.value = "";
+      codigoInput.value = "";
+
+      mostrarSnippets();
+    }
+
+    function copiarTexto(texto) {
+      navigator.clipboard.writeText(texto).then(() => {
+        alert("Código copiado!");
+      });
+    }
+
+    function excluirSnippet(index) {
+      if (confirm("Tem certeza que deseja excluir este snippet?")) {
+        snippets.splice(index, 1);
+        localStorage.setItem("snippets", JSON.stringify(snippets));
+        mostrarSnippets();
+      }
+    }
+
+    function mostrarSnippets() {
+      lista.innerHTML = "";
+      snippets.forEach((s, i) => {
+        const div = document.createElement("div");
+        div.className = "snippet";
+
+        div.innerHTML = `
+          <strong>${s.nome}</strong> (${s.categoria})
+          <pre>${s.codigo}</pre>
+          <div class="snippet-actions">
+            <button onclick="copiarTexto(\`${s.codigo.replace(/`/g, '\\`')}\`)">📋 Copiar</button>
+            <button onclick="excluirSnippet(${i})">🗑 Excluir</button>
+          </div>
+        `;
+        lista.appendChild(div);
+      });
+    }
+
+    mostrarSnippets();
+  </script>
+
+</body>
+</html>
